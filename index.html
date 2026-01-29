@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIBRANET - Acesso Evento</title>
+    <style>
+        :root {
+            --bg-main:#05051e; --bg-panel:#0b0b2e; --border:#1a1a4a;
+            --blue:#1f6fff; --text:#fff; --muted:#b5c7ff; 
+            --success:#00c853;
+        }
+        *{box-sizing:border-box; font-family: 'Segoe UI', sans-serif;}
+        body{margin:0; background:var(--bg-main); color:var(--text); display:flex; justify-content:center; align-items:center; min-height:100vh; padding:20px;}
+        .card-cadastro { background: var(--bg-panel); border: 2px solid var(--border); border-radius: 15px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
+        .logo { height: 60px; margin-bottom: 20px; }
+        h2 { margin: 0; color: var(--blue); }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; color: var(--muted); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        input { width: 100%; padding: 12px; background: #020214; color: #fff; border: 1px solid var(--border); border-radius: 6px; outline: none; }
+        .btn-enviar { background: var(--blue); width: 100%; padding: 15px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .loading { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s linear infinite; margin-left: 10px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none; }
+        #mensagem { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; font-size: 0.9rem; background: rgba(0, 200, 83, 0.2); color: var(--success); border: 1px solid var(--success); }
+    </style>
+</head>
+<body>
+
+<div class="card-cadastro">
+    <img src="https://raw.githubusercontent.com/cardozooscar/imagenscgr/refs/heads/main/WhatsApp_Image_2025-10-30_at_10.21.26__1_-removebg-preview.png" class="logo">
+    <h2>WIFI FIBRANET</h2>
+    <p>Cadastre-se para acessar a rede</p>
+
+    <form id="formCadastro">
+        <div class="form-group"><label>Nome Completo</label><input type="text" id="nome" required></div>
+        <div class="form-group"><label>Telefone</label><input type="tel" id="telefone" required></div>
+        <div class="form-group"><label>Empresa</label><input type="text" id="empresa" required></div>
+
+        <button type="submit" class="btn-enviar" id="btnSubmit">
+            <span id="btnText">Liberar Acesso</span>
+            <div id="loader" class="loading hidden"></div>
+        </button>
+    </form>
+    <div id="mensagem">Acesso liberado! Redirecionando...</div>
+</div>
+
+<script>
+    // IMPORTANTE: Cole sua URL nova aqui
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyW2YPLRv_SZpdqD1YD5MoN0bB_JwGDHoC0W1zN5pTCM0ltF6E4_mOjRQhY4uq3ldU3jw/exec";
+
+    document.getElementById('formCadastro').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('btnSubmit');
+        const loader = document.getElementById('loader');
+        const btnText = document.getElementById('btnText');
+        const msgDiv = document.getElementById('mensagem');
+
+        btn.disabled = true;
+        loader.classList.remove('hidden');
+        btnText.innerText = "Sincronizando...";
+
+        const dados = {
+            data: new Date().toLocaleString('pt-BR'),
+            nome: document.getElementById('nome').value,
+            telefone: document.getElementById('telefone').value,
+            empresa: document.getElementById('empresa').value
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Necessário para evitar erro de redirecionamento do Google
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        })
+        .then(() => {
+            // No modo no-cors, não conseguimos ler o JSON de retorno, 
+            // então assumimos sucesso se a requisição foi completada.
+            msgDiv.style.display = "block";
+            setTimeout(() => {
+                window.location.href = "https://www.google.com";
+            }, 1500);
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert("Erro ao conectar. Tente novamente.");
+            btn.disabled = false;
+            loader.classList.add('hidden');
+            btnText.innerText = "Liberar Acesso";
+        });
+    });
+</script>
+</body>
+</html>
